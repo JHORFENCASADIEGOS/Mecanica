@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller ERP - Portal Cliente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { slate: { 850: '#151f32' } } } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item:hover, .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(16,185,129,0.12) 0%, transparent 100%);
+            border-left: 3px solid #10b981; color: white;
+        }
+        .sidebar-item.active i { color: #34d399; }
+        .glass-header {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .status-badge { @apply px-3 py-1 rounded-full text-xs font-semibold; }
+        .card-input {
+            @apply w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder-slate-500;
+        }
+        /* Credit card animation */
+        .cc-container {
+            background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%);
+            border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+        }
+        .cc-container::before {
+            content:''; position: absolute; top:-30px; right:-30px; width:100px; height:100px;
+            background: rgba(255,255,255,0.1); border-radius:50%;
+        }
+        .cc-container::after {
+            content:''; position: absolute; bottom:-40px; left:-20px; width:120px; height:120px;
+            background: rgba(255,255,255,0.05); border-radius:50%;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-850 border-r border-slate-800 flex flex-col hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mr-3 shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-car text-white text-sm"></i>
+            </div>
+            <span class="text-white font-bold text-lg tracking-tight">Taller ERP</span>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 mb-2">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mi Portal</p>
+            </div>
+            <nav class="space-y-1">
+                <a href="#" onclick="switchView('vehiculos', this)" id="nav-vehiculos" class="sidebar-item active flex items-center px-6 py-2.5 text-sm text-slate-400 border-l-3 border-transparent">
+                    <i class="fa-solid fa-car w-5 mr-3 text-slate-500"></i>
+                    Mis Vehículos
+                </a>
+                <a href="#" onclick="switchView('agendar', this)" id="nav-agendar" class="sidebar-item flex items-center px-6 py-2.5 text-sm text-slate-400 border-l-3 border-transparent">
+                    <i class="fa-solid fa-calendar-plus w-5 mr-3 text-slate-500"></i>
+                    Agendar Servicio
+                </a>
+                <a href="#" onclick="switchView('ordenes', this)" id="nav-ordenes" class="sidebar-item flex items-center px-6 py-2.5 text-sm text-slate-400 border-l-3 border-transparent">
+                    <i class="fa-solid fa-clipboard-list w-5 mr-3 text-slate-500"></i>
+                    Mis Órdenes
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center text-xs text-slate-500">
+                <i class="fa-solid fa-circle text-emerald-400 text-[6px] mr-2"></i>
+                <span>Rol: Cliente</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="flex-1 flex flex-col h-screen relative">
+        <header class="h-16 glass-header absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6">
+            <div class="flex items-center">
+                <h2 id="page-title" class="text-white font-semibold text-lg">Mis Vehículos</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center cursor-pointer group">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-medium text-emerald-400">
+                        {{ session['usuario']['USERNAME'][:2].upper() if session.get('usuario') else 'CL' }}
+                    </div>
+                    <div class="ml-3 hidden md:block">
+                        <p class="text-xs font-medium text-white">{{ session['usuario']['NOMBRE'] if session.get('usuario') else 'Cliente' }}</p>
+                        <p class="text-[10px] text-slate-500">Cliente</p>
+                    </div>
+                    <a href="/logout" class="ml-4 text-slate-500 hover:text-red-400 transition-colors" title="Cerrar Sesión">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto pt-20 px-6 pb-6">
+            <div id="loader" class="hidden h-full flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+            </div>
+            <div id="view-container" class="animate-fade-in"></div>
+        </main>
+    </div>
+
+    <!-- Modal Genérico -->
+    <div id="global-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm">
+        <div class="bg-slate-800 border border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-slate-700/50 flex justify-between items-center sticky top-0 bg-slate-800 z-10">
+                <h3 id="modal-title" class="text-lg font-semibold text-white">Formulario</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <div id="modal-alert" class="hidden mb-4 p-3 rounded-lg text-sm text-center"></div>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/cliente.js"></script>
+</body>
+</html>
