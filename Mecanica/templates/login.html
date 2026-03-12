@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller ERP - Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0e1a;
+            overflow: hidden;
+        }
+        /* Animated background */
+        .bg-gradient {
+            position: fixed; inset: 0; z-index: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.12) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.12) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 80%, rgba(16,185,129,0.08) 0%, transparent 50%),
+                        #0a0e1a;
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        /* Card */
+        .login-card {
+            position: relative; z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(24px);
+            border-radius: 24px;
+            width: 100%; max-width: 440px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(59,130,246,0.05);
+        }
+        /* Inputs */
+        .form-input {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1.5px solid rgba(100, 116, 139, 0.3);
+            color: #f1f5f9;
+            font-size: 15px;
+            padding: 14px 16px 14px 44px;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .form-input::placeholder { color: #64748b; }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+            background: rgba(30, 41, 59, 0.9);
+        }
+        .input-group { position: relative; }
+        .input-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: #64748b; font-size: 14px; pointer-events: none; transition: color 0.25s;
+        }
+        .input-group:focus-within .input-icon { color: #3b82f6; }
+        /* Button */
+        .btn-glow {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 16px rgba(59,130,246,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.25s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-glow:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.1); 
+        }
+        .btn-glow:active { transform: translateY(0); }
+        .btn-glow:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-glow.btn-emerald {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 16px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .btn-glow.btn-emerald:hover { box-shadow: 0 6px 24px rgba(16,185,129,0.4); }
+        /* Animations */
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-in { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        /* Toggle link */
+        .toggle-link {
+            color: #94a3b8; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+            background: none; border: none; cursor: pointer; transition: color 0.25s;
+        }
+        .toggle-link:hover { color: #e2e8f0; }
+        /* Divider */
+        .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(148,163,184,0.15), transparent); margin: 24px 0; }
+        /* Alert */
+        .alert-box {
+            padding: 12px 16px; border-radius: 10px; font-size: 13px; text-align: center;
+            margin-bottom: 20px; display: none; animation: fadeIn 0.3s ease;
+        }
+        .alert-error { display: block; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; }
+        .alert-success { display: block; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Floating orbs */
+        .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; animation: float 8s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    
+    <div class="login-card slide-up">
+        <!-- Decorative orbs -->
+        <div class="orb" style="width:120px;height:120px;background:#3b82f6;top:-40px;right:-30px;animation-delay:-2s;"></div>
+        <div class="orb" style="width:100px;height:100px;background:#8b5cf6;bottom:-30px;left:-20px;animation-delay:-4s;"></div>
+
+        <div style="position:relative;z-index:5;">
+            <!-- Logo & Title -->
+            <div style="text-align:center;margin-bottom:32px;">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.15));margin-bottom:16px;">
+                    <i class="fa-solid fa-wrench" style="font-size:24px;color:#60a5fa;"></i>
+                </div>
+                <h1 style="font-size:28px;font-weight:800;color:#f8fafc;letter-spacing:-0.5px;">Taller ERP</h1>
+                <p id="subtitle" style="color:#94a3b8;font-size:14px;margin-top:8px;">Ingresa tus credenciales para continuar</p>
+            </div>
+
+            <!-- Alert -->
+            <div id="alert-banner" class="alert-box"></div>
+
+            <!-- ===== LOGIN FORM ===== -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;">
+                    <div class="input-group">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="login-username" required class="form-input" placeholder="Tu usuario">
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="login-password" required class="form-input" placeholder="Tu contraseña">
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn" class="btn-glow">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Iniciar Sesión</span>
+                </button>
+                <div class="divider"></div>
+                <div style="text-align:center;">
+                    <button type="button" onclick="showRegisterForm()" class="toggle-link">
+                        <i class="fa-solid fa-user-plus"></i>
+                        ¿No tienes cuenta? <strong style="color:#60a5fa;">Regístrate</strong>
+                    </button>
+                </div>
+            </form>
+
+            <!-- ===== REGISTER FORM ===== -->
+            <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+                <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="input-group">
+                            <i class="fa-solid fa-id-card input-icon"></i>
+                            <input type="text" id="reg-documento" required class="form-input" placeholder="Documento">
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input type="text" id="reg-telefono" class="form-input" placeholder="Teléfono">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="reg-nombre" required class="form-input" placeholder="Nombre completo">
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input type="email" id="reg-email" required class="form-input" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="divider" style="margin:8px 0;"></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="input-group">
+                            <i class="fa-solid fa-at input-icon"></i>
+                            <input type="text" id="reg-username" required class="form-input" placeholder="Usuario">
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="reg-password" required class="form-input" placeholder="Contraseña">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="registerBtn" class="btn-glow btn-emerald">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Crear Cuenta de Cliente</span>
+                </button>
+                <div class="divider"></div>
+                <div style="text-align:center;">
+                    <button type="button" onclick="showLoginForm()" class="toggle-link">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Ya tengo cuenta, <strong style="color:#60a5fa;">iniciar sesión</strong>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Footer -->
+            <p style="text-align:center;color:#475569;font-size:12px;margin-top:24px;">&copy; 2026 Taller ERP. Software de Gestión.</p>
+        </div>
+    </div>
+
+    <script>
+        const alertBanner = document.getElementById('alert-banner');
+
+        function showAlert(message, isError = true) {
+            alertBanner.className = 'alert-box ' + (isError ? 'alert-error' : 'alert-success');
+            alertBanner.textContent = message;
+        }
+        function hideAlert() { alertBanner.className = 'alert-box'; }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            const reg = document.getElementById('registerForm');
+            reg.style.display = 'block';
+            reg.classList.add('slide-in');
+            document.getElementById('subtitle').textContent = 'Crea tu cuenta de cliente';
+            hideAlert();
+        }
+        function showLoginForm() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('subtitle').textContent = 'Ingresa tus credenciales para continuar';
+            hideAlert();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Ingresando...</span>';
+            hideAlert();
+
+            try {
+                const res = await fetch('/api/MECANICA_CRUD_TERCEROS', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vcrud: 7,
+                        username: document.getElementById('login-username').value,
+                        password_hash: document.getElementById('login-password').value
+                    })
+                });
+                const data = await res.json();
+                if (data.OSUCCESS === 1) {
+                    showAlert('¡Bienvenido! Redirigiendo...', false);
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i><span>¡Listo!</span>';
+                    setTimeout(() => { window.location.href = '/'; }, 800);
+                } else {
+                    showAlert(data.OMENSAJE || 'Credenciales incorrectas');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span>';
+                }
+            } catch {
+                showAlert('Error de conexión con el servidor');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span>';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando cuenta...</span>';
+            hideAlert();
+
+            try {
+                // Paso 1: Crear Tercero como cliente
+                const resTercero = await fetch('/api/MECANICA_CRUD_TERCEROS', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vcrud: 1, auto_registro: true,
+                        documento: document.getElementById('reg-documento').value,
+                        nombre: document.getElementById('reg-nombre').value,
+                        telefono: document.getElementById('reg-telefono').value || '',
+                        email: document.getElementById('reg-email').value,
+                        es_cliente: 1, es_trabajador: 0, es_proveedor: 0
+                    })
+                });
+                const dataTercero = await resTercero.json();
+                if (dataTercero.OSUCCESS !== 1) {
+                    showAlert(dataTercero.OMENSAJE || 'Error al crear el registro');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-user-check"></i><span>Crear Cuenta de Cliente</span>';
+                    return;
+                }
+
+                // Paso 2: Crear Usuario para ese tercero
+                const resUser = await fetch('/api/MECANICA_CRUD_TERCEROS', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vcrud: 6, auto_registro: true,
+                        terid: dataTercero.TERID,
+                        username: document.getElementById('reg-username').value,
+                        password_hash: document.getElementById('reg-password').value
+                    })
+                });
+                const dataUser = await resUser.json();
+                if (dataUser.OSUCCESS !== 1) {
+                    showAlert(dataUser.OMENSAJE || 'Error al crear el usuario');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-user-check"></i><span>Crear Cuenta de Cliente</span>';
+                    return;
+                }
+
+                showAlert('¡Cuenta creada exitosamente! Redirigiendo al login...', false);
+                btn.innerHTML = '<i class="fa-solid fa-check"></i><span>¡Cuenta Creada!</span>';
+                setTimeout(() => showLoginForm(), 1500);
+
+            } catch {
+                showAlert('Error de conexión con el servidor');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
