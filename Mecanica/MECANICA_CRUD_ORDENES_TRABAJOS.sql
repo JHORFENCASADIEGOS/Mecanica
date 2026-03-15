@@ -27,6 +27,9 @@ BEGIN
     SET p_ordenid                = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.ordenid"));
     SET p_cliente_terid          = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.cliente_terid"));
     SET p_trabajador_terid       = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.trabajador_terid"));
+    IF p_trabajador_terid = '0' OR p_trabajador_terid = '' THEN
+        SET p_trabajador_terid = NULL;
+    END IF;
     SET p_vehiculoid             = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.vehiculoid"));
     SET p_estadoid               = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.estadoid"));
     SET p_kilometraje_ingreso    = JSON_UNQUOTE(JSON_EXTRACT(data_json, "$.kilometraje_ingreso"));
